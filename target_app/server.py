@@ -164,12 +164,13 @@ class Handler(BaseHTTPRequestHandler):
             <form method="POST" action="/login">
             <table border="0" cellpadding="4">
               <tr><td><label for="t">Teller ID</label></td>
-                  <td><input type="text" name="teller" id="t" size="16"></td></tr>
+                  <td><input type="text" name="teller" id="t" size="16" value="T-100"></td></tr>
               <tr><td><label for="c">Access Code</label></td>
-                  <td><input type="password" name="code" id="c" size="16"></td></tr>
+                  <td><input type="password" name="code" id="c" size="16" value="8421"></td></tr>
               <tr><td></td><td><input type="submit" value="Sign In"></td></tr>
             </table></form>
-            <font size="1">Demo credentials: any Teller ID and any Access Code.</font>"""
+            <font size="1"><b>Demo build:</b> credentials are pre-filled and ANY non-empty
+            Teller ID / Access Code is accepted &mdash; there is no real authentication.</font>"""
             self._send_html(page("Sign-In", body, self._modal()))
             return
 
