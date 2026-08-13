@@ -1,0 +1,18 @@
+{"ts": "2026-08-13T19:50:59+00:00", "type": "step_start", "step": "s1", "action": "navigate", "note": "open the application entry point", "attempt": 1}
+{"ts": "2026-08-13T19:51:02+00:00", "type": "step_ok", "step": "s1", "strategy": "url", "attempts": 1, "duration_ms": 2468}
+{"ts": "2026-08-13T19:51:02+00:00", "type": "step_start", "step": "s2", "action": "type", "note": "Enter teller ID", "attempt": 1}
+{"ts": "2026-08-13T19:51:04+00:00", "type": "step_ok", "step": "s2", "strategy": "role=textbox name=\"Teller ID\"", "attempts": 1, "duration_ms": 2453}
+{"ts": "2026-08-13T19:51:04+00:00", "type": "step_start", "step": "s3", "action": "type", "note": "Enter ***REDACTED***", "attempt": 1}
+{"ts": "2026-08-13T19:51:06+00:00", "type": "step_ok", "step": "s3", "strategy": "role=textbox name=\"***REDACTED***\"", "attempts": 1, "duration_ms": 2452}
+{"ts": "2026-08-13T19:51:06+00:00", "type": "step_start", "step": "s4", "action": "click", "note": "Sign in to teller portal", "attempt": 1}
+{"ts": "2026-08-13T19:51:09+00:00", "type": "step_ok", "step": "s4", "strategy": "role=button name=\"Sign In\"", "attempts": 1, "duration_ms": 2483}
+{"ts": "2026-08-13T19:51:09+00:00", "type": "step_start", "step": "s5", "action": "type", "note": "Enter member number", "attempt": 1}
+{"ts": "2026-08-13T19:51:19+00:00", "type": "step_error", "step": "s5", "attempt": 1, "error": "could not resolve element (Enter member number) within 10000 ms; tried: role=textbox name=\"Member Number\"; css=input[name=\"q\"]; css=form > table > tbody > tr > td:nth-of-type(2) > input"}
+{"ts": "2026-08-13T19:51:22+00:00", "type": "recovery_applied", "rule": "restore_expired_session", "attempt": 1}
+{"ts": "2026-08-13T19:51:22+00:00", "type": "step_start", "step": "s5", "action": "type", "note": "Enter member number", "attempt": 2}
+{"ts": "2026-08-13T19:51:24+00:00", "type": "step_ok", "step": "s5", "strategy": "role=textbox name=\"Member Number\"", "attempts": 2, "duration_ms": 15157}
+{"ts": "2026-08-13T19:51:24+00:00", "type": "step_start", "step": "s6", "action": "click", "note": "Search for member", "attempt": 1}
+{"ts": "2026-08-13T19:51:27+00:00", "type": "step_ok", "step": "s6", "strategy": "role=button name=\"Search\"", "attempts": 1, "duration_ms": 2467}
+{"ts": "2026-08-13T19:51:27+00:00", "type": "checkpoint_verified", "conditions": ["text visible: \"Member Profile\""]}
+{"ts": "2026-08-13T19:51:27+00:00", "type": "outputs_extracted", "outputs": {"savings_balance": "$4,825.50"}}
+{"ts": "2026-08-13T19:51:27+00:00", "type": "replay_finished", "status": "success"}

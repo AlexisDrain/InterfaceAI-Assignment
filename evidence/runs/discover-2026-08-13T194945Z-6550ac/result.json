@@ -1,0 +1,6 @@
+{
+  "status": "success",
+  "summary": "Signed in as teller, searched member 12345, and read Savings balance ($4,825.50).",
+  "artifact": "artifacts\\lookup_member_savings.v1.json",
+  "checkpoint": "Member Profile"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "iv-12eedc19",
+  "reason": "Replay blocked at step s4 (click): Locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Sign In\").first\n    - locator resolved to <input type=\"submit\" value=\"Sign In\"/>\n  - attempting click act",
+  "context": {
+    "capability": "lookup_member_savings",
+    "step": "s4",
+    "step_note": "Sign in to teller portal",
+    "expected": "click on role=button name=\"Sign In\" (Sign in to teller portal)",
+    "url": "http://127.0.0.1:8300/login"
+  },
+  "url": "http://127.0.0.1:8300/login",
+  "raised_at": "2026-08-13T19:52:39+00:00"
+}

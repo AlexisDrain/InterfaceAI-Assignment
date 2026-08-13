@@ -1,0 +1,272 @@
+{
+  "schema_version": "1.0",
+  "capability_id": "lookup_member_savings",
+  "name": "Lookup Member Savings",
+  "description": "Sign in to the teller portal, look up the member by member number, and read their current Savings account balance.",
+  "version": 1,
+  "status": "approved",
+  "base_url": "http://127.0.0.1:8300",
+  "inputs": [
+    {
+      "name": "teller_id",
+      "type": "string",
+      "description": "input parameter 'teller_id'",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "access_code",
+      "type": "string",
+      "description": "input parameter 'access_code'",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "member_id",
+      "type": "string",
+      "description": "input parameter 'member_id'",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "outputs": [
+    {
+      "name": "savings_balance",
+      "type": "string",
+      "description": "Current balance of the member's Savings account",
+      "extract": {
+        "description": "",
+        "strategies": [
+          {
+            "kind": "row_cell",
+            "row_text": "Savings",
+            "column_header": "Current Balance"
+          }
+        ]
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "action": "navigate",
+      "note": "open the application entry point",
+      "url": "{{base_url}}",
+      "wait_after": {
+        "load_state": "load"
+      }
+    },
+    {
+      "id": "s2",
+      "action": "type",
+      "note": "Enter teller ID",
+      "target": {
+        "description": "Enter teller ID",
+        "strategies": [
+          {
+            "kind": "role",
+            "role": "textbox",
+            "name": "Teller ID"
+          },
+          {
+            "kind": "css",
+            "selector": "input[name=\"teller\"]"
+          },
+          {
+            "kind": "css",
+            "selector": "form > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > input"
+          }
+        ]
+      },
+      "value": "{{teller_id}}",
+      "wait_after": {
+        "load_state": "load"
+      }
+    },
+    {
+      "id": "s3",
+      "action": "type",
+      "note": "Enter access code",
+      "target": {
+        "description": "Enter access code",
+        "strategies": [
+          {
+            "kind": "role",
+            "role": "textbox",
+            "name": "Access Code"
+          },
+          {
+            "kind": "css",
+            "selector": "input[name=\"code\"]"
+          },
+          {
+            "kind": "css",
+            "selector": "form > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > input"
+          }
+        ]
+      },
+      "value": "{{access_code}}",
+      "wait_after": {
+        "load_state": "load"
+      }
+    },
+    {
+      "id": "s4",
+      "action": "click",
+      "note": "Sign in to teller portal",
+      "target": {
+        "description": "Sign in to teller portal",
+        "strategies": [
+          {
+            "kind": "role",
+            "role": "button",
+            "name": "Sign In"
+          },
+          {
+            "kind": "text",
+            "text": "Sign In"
+          },
+          {
+            "kind": "css",
+            "selector": "form > table > tbody > tr:nth-of-type(3) > td:nth-of-type(2) > input"
+          }
+        ]
+      },
+      "wait_after": {
+        "load_state": "load"
+      }
+    },
+    {
+      "id": "s5",
+      "action": "type",
+      "note": "Enter member number",
+      "target": {
+        "description": "Enter member number",
+        "strategies": [
+          {
+            "kind": "role",
+            "role": "textbox",
+            "name": "Member Number"
+          },
+          {
+            "kind": "css",
+            "selector": "input[name=\"q\"]"
+          },
+          {
+            "kind": "css",
+            "selector": "form > table > tbody > tr > td:nth-of-type(2) > input"
+          }
+        ]
+      },
+      "value": "{{member_id}}",
+      "wait_after": {
+        "load_state": "load"
+      }
+    },
+    {
+      "id": "s6",
+      "action": "click",
+      "note": "Search for member",
+      "target": {
+        "description": "Search for member",
+        "strategies": [
+          {
+            "kind": "role",
+            "role": "button",
+            "name": "Search"
+          },
+          {
+            "kind": "text",
+            "text": "Search"
+          },
+          {
+            "kind": "css",
+            "selector": "form > table > tbody > tr > td:nth-of-type(3) > input"
+          }
+        ]
+      },
+      "wait_after": {
+        "load_state": "load"
+      }
+    }
+  ],
+  "checkpoint": [
+    {
+      "text_visible": "Member Profile"
+    }
+  ],
+  "outcome_detectors": [
+    {
+      "id": "member_not_found",
+      "when": {
+        "text_visible": "No member found matching"
+      },
+      "classification": "business_outcome",
+      "message": "No member matches the supplied member number.",
+      "outputs": {
+        "found": false
+      },
+      "origin": "app_profile"
+    },
+    {
+      "id": "input_rejected",
+      "when": {
+        "text_visible": "Input Error:"
+      },
+      "classification": "business_outcome",
+      "message": "The application rejected the submitted input (validation error).",
+      "outputs": {
+        "found": false
+      },
+      "origin": "app_profile"
+    }
+  ],
+  "hard_error_detectors": [
+    {
+      "id": "app_error",
+      "when": {
+        "text_visible": "Application Error"
+      },
+      "message": "Target application raised an internal error page.",
+      "origin": "app_profile"
+    }
+  ],
+  "recovery_rules": [
+    {
+      "id": "restore_expired_session",
+      "when": {
+        "text_visible": "Session Expired"
+      },
+      "action": {
+        "kind": "click",
+        "target": {
+          "description": "Restore Session button on the session-expiry interstitial",
+          "strategies": [
+            {
+              "kind": "role",
+              "role": "button",
+              "name": "Restore Session"
+            },
+            {
+              "kind": "text",
+              "text": "Restore Session"
+            }
+          ]
+        }
+      },
+      "max_attempts": 2,
+      "origin": "app_profile"
+    }
+  ],
+  "risk": {
+    "level": "read_only",
+    "rationale": ""
+  },
+  "provenance": {
+    "discovered_at": "2026-08-13T19:49:59+00:00",
+    "model": "claude-opus-5",
+    "discovery_run_id": "discover-2026-08-13T194945Z-6550ac",
+    "app_profile_id": "legacy-teller",
+    "goal": "Sign in to the teller portal, look up the member by member number, and read their current Savings account balance."
+  }
+}

@@ -1,0 +1,21 @@
+- table:
+  - rowgroup:
+    - row "TellerCore 2000™ — First Example Credit Union":
+      - cell "TellerCore 2000™ — First Example Credit Union"
+    - row "Navigation Member Search Sign Out Member Search No member found matching \"99999\". Back to search":
+      - cell "Navigation Member Search Sign Out Member Search No member found matching \"99999\". Back to search":
+        - table:
+          - rowgroup:
+            - row "Navigation Member Search Sign Out Member Search No member found matching \"99999\". Back to search":
+              - cell "Navigation Member Search Sign Out":
+                - text: Navigation
+                - link "Member Search":
+                  - /url: /search
+                - link "Sign Out":
+                  - /url: /logout
+              - cell "Member Search No member found matching \"99999\". Back to search":
+                - text: Member Search No member found matching "99999".
+                - link "Back to search":
+                  - /url: /search
+    - row "TellerCore 2000 build 4.7.112 · For internal use only · Unauthorized access prohibited":
+      - cell "TellerCore 2000 build 4.7.112 · For internal use only · Unauthorized access prohibited"

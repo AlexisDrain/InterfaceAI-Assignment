@@ -24,6 +24,24 @@ from .schema import Artifact, ParamSpec, ReplayStatus, RiskSpec
 from .tracelog import RunLogger
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def _load_dotenv(path: Path = ROOT / ".env") -> None:
+    """Load KEY=VALUE lines from a local .env file (gitignored) into the
+    environment. Real env vars take precedence; never logged."""
+    if not path.is_file():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k, v = k.strip(), v.strip().strip('"').strip("'")
+        if k and k not in os.environ:
+            os.environ[k] = v
+
+
+_load_dotenv()
 DEFAULT_BASE_URL = os.environ.get("CUA_TARGET_BASE_URL", "http://127.0.0.1:8300")
 
 

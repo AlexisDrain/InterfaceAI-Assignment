@@ -1,0 +1,2 @@
+- heading "Application Error" [level=1]
+- paragraph: "TellerCore fault 0x2F: ledger service unavailable."

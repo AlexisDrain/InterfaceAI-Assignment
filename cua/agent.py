@@ -251,7 +251,8 @@ class DiscoveryAgent:
                 max_tokens=4096,
                 system=SYSTEM_PROMPT,
                 tools=TOOLS,
-                tool_choice={"type": "any"},
+                # one action per turn: observe -> decide -> act
+                tool_choice={"type": "any", "disable_parallel_tool_use": True},
                 messages=messages,
             )
             if response.stop_reason == "refusal":
@@ -260,7 +261,11 @@ class DiscoveryAgent:
                 out.summary = "model refused the request"
                 return out
 
-            tool_use = next((b for b in response.content if b.type == "tool_use"), None)
+            tool_uses = [b for b in response.content if b.type == "tool_use"]
+            tool_use = tool_uses[0] if tool_uses else None
+            # every tool_use after the first must still get a tool_result on the
+            # next message or the API rejects the conversation
+            self._extra_tool_uses = tool_uses[1:]
             thoughts = " ".join(b.text for b in response.content if b.type == "text").strip()
             if thoughts:
                 self.log.event("model_note", text=thoughts[:500])
@@ -307,16 +312,26 @@ class DiscoveryAgent:
         out.steps_used = self.policy.max_discovery_steps
         return out
 
-    @staticmethod
-    def _tool_result(tool_use_id: str, text: str, is_error: bool = False) -> dict:
+    def _tool_result(self, tool_use_id: str, text: str, is_error: bool = False) -> dict:
+        blocks = [{
+            "type": "tool_result",
+            "tool_use_id": tool_use_id,
+            "content": text,
+            "is_error": is_error,
+        }]
+        # answer any parallel tool calls we chose not to execute
+        for extra in getattr(self, "_extra_tool_uses", []) or []:
+            blocks.append({
+                "type": "tool_result",
+                "tool_use_id": extra.id,
+                "content": "Not executed: one action per turn. Re-issue this call "
+                           "on a later turn if it is still needed.",
+                "is_error": True,
+            })
+        self._extra_tool_uses = []
         return {
             "role": "user",
-            "content": [{
-                "type": "tool_result",
-                "tool_use_id": tool_use_id,
-                "content": text,
-                "is_error": is_error,
-            }],
+            "content": blocks,
         }
 
     def _execute(self, tool: str, args: dict, out: DiscoveryOutcome) -> tuple[str, bool]:

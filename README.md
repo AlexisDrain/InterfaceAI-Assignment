@@ -44,6 +44,9 @@ Only the **discovery** path calls the model. Set a key for it:
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
+Or copy `.env.example` to `.env` and put the key there — `.env` is gitignored
+and loaded automatically by the CLI (a set environment variable wins over it).
+
 **Running without live services:** deterministic replay, the capability catalog,
 the policy layer, and the escalation flow all work with no API key — only
 `discover` needs one. The target app is local; nothing external is contacted.

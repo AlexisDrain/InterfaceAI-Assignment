@@ -155,6 +155,8 @@ workspace and a remote browser pool (CDP/VNC) behind the same API.
 
 Deliberately cut, with the seam left clean:
 
+- **Non-Anthropic LLM** — provider-agnostic LLMProvider interface out of scope. Could
+  be added with a ~100-line adapter.
 - **Desktop/legacy-frameset surface implementations** — the `Surface` interface and
   accessibility-first targeting are the seam (§4); only one browser implementation is built.
 - **Tenant overlay resolution** — designed (§4); today one profile layer + `--base-url` exists.
