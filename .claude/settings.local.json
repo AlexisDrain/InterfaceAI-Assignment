@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python -c ' *)",
-      "Bash(pip install *)",
-      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)"
-    ]
-  }
-}
