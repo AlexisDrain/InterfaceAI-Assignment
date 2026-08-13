@@ -1,0 +1,24 @@
+{
+  "$comment": "Safety policy enforced by the surface layer on EVERY action (discovery and replay). The LLM never sees or controls this file.",
+  "allowed_origins": ["http://127.0.0.1:8300", "http://localhost:8300"],
+  "allowed_actions": ["navigate", "click", "type", "select", "press", "extract"],
+  "risky_action_patterns": [
+    "(?i)confirm\\s*&?\\s*open",
+    "(?i)\\bwire\\b",
+    "(?i)\\btransfer\\b",
+    "(?i)\\bdelete\\b",
+    "(?i)\\bclose account\\b",
+    "(?i)\\bsubmit payment\\b"
+  ],
+  "risky_action_mode": "block",
+  "$risky_action_mode_options": "block = refuse and surface a policy violation; escalate = pause and ask a human operator",
+  "sensitive_value_patterns": [
+    "\\b\\d{3}-\\d{2}-\\d{4}\\b",
+    "(?i)pin",
+    "(?i)password",
+    "(?i)access.?code"
+  ],
+  "max_discovery_steps": 30,
+  "action_timeout_ms": 10000,
+  "navigation_timeout_ms": 15000
+}

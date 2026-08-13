@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CUA Operator Console</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #10151c; color: #e6e9ee; }
+  header { padding: 12px 20px; background: #1a2230; font-weight: 600; letter-spacing: .5px; }
+  main { display: grid; grid-template-columns: 420px 1fr; gap: 16px; padding: 16px 20px; }
+  .banner { padding: 10px 14px; border-radius: 6px; margin-bottom: 12px; font-weight: 600; }
+  .banner.ok { background: #14321d; color: #7fd79a; }
+  .banner.alert { background: #3a1d14; color: #ffb08a; }
+  .banner.warn { background: #33301a; color: #e0d080; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid #253044; vertical-align: top; }
+  th { color: #8fa1bb; white-space: nowrap; width: 90px; }
+  fieldset { border: 1px solid #253044; border-radius: 6px; margin: 12px 0; padding: 10px; }
+  legend { color: #8fa1bb; font-size: 12px; padding: 0 6px; }
+  input { background: #0c1118; color: #e6e9ee; border: 1px solid #33415c; border-radius: 4px; padding: 6px 8px; margin: 2px 4px 2px 0; }
+  button { background: #2b71d9; color: white; border: 0; border-radius: 4px; padding: 7px 14px; cursor: pointer; margin: 2px 4px 2px 0; }
+  button:hover { filter: brightness(1.15); }
+  button.danger { background: #b3402e; }
+  button.good { background: #2e9e57; }
+  img#shot { max-width: 100%; border: 1px solid #253044; border-radius: 6px; background: #fff; }
+  pre#log { background: #0c1118; border: 1px solid #253044; border-radius: 6px; padding: 10px; font-size: 12px; max-height: 180px; overflow: auto; white-space: pre-wrap; }
+  .hint { color: #6b7c94; font-size: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<header>Computer-Use Automation &mdash; Operator Console</header>
+<main>
+  <section>
+    <div id="banner" class="banner warn">connecting&hellip;</div>
+    <table><tbody id="details"></tbody></table>
+    <div id="controls" style="display:none">
+      <fieldset>
+        <legend>Act on the live session</legend>
+        <div>
+          <input id="click-text" placeholder="button / link text" size="24">
+          <button id="btn-click">Click</button>
+        </div>
+        <div>
+          <input id="type-field" placeholder="field label" size="14">
+          <input id="type-value" placeholder="value" size="14">
+          <button id="btn-type">Type</button>
+        </div>
+        <button id="btn-refresh">Refresh screenshot</button>
+      </fieldset>
+      <fieldset>
+        <legend>Hand control back</legend>
+        <button id="btn-resume" class="good">Resume automation</button>
+        <button id="btn-abort" class="danger">Abort run</button>
+        <div class="hint">Resume restarts the capability from step 1 (flows are
+        non-mutating up to their recorded boundary, so restart is safe).</div>
+      </fieldset>
+      <pre id="log"></pre>
+    </div>
+  </section>
+  <section>
+    <img id="shot" src="/screenshot.png" alt="live session screenshot">
+  </section>
+</main>
+<script src="/console.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "$comment": "App profile: knowledge about the TARGET APPLICATION that is shared by every capability recorded against it. In the real multi-tenant environment this is the vendor-product-level layer; tenants override it, capabilities inherit it.",
+  "app_id": "legacy-teller",
+  "app_name": "TellerCore 2000",
+  "base_url": "http://127.0.0.1:8300",
+  "outcome_detectors": [
+    {
+      "id": "member_not_found",
+      "when": { "text_visible": "No member found matching" },
+      "classification": "business_outcome",
+      "message": "No member matches the supplied member number.",
+      "outputs": { "found": false }
+    },
+    {
+      "id": "input_rejected",
+      "when": { "text_visible": "Input Error:" },
+      "classification": "business_outcome",
+      "message": "The application rejected the submitted input (validation error).",
+      "outputs": { "found": false }
+    }
+  ],
+  "hard_error_detectors": [
+    {
+      "id": "app_error",
+      "when": { "text_visible": "Application Error" },
+      "message": "Target application raised an internal error page."
+    }
+  ],
+  "recovery_rules": [
+    {
+      "id": "restore_expired_session",
+      "when": { "text_visible": "Session Expired" },
+      "action": {
+        "kind": "click",
+        "target": {
+          "description": "Restore Session button on the session-expiry interstitial",
+          "strategies": [
+            { "kind": "role", "role": "button", "name": "Restore Session" },
+            { "kind": "text", "text": "Restore Session" }
+          ]
+        }
+      },
+      "max_attempts": 2
+    }
+  ]
+}
