@@ -2,174 +2,210 @@
 
 ## 1. Architecture
 
-The through-line: **the model discovers; the compiler produces a typed artifact; deterministic
-replay is how agents invoke it in production.**
+The core idea I built everything around: **the model figures the task out once;
+a compiler turns what it did into a typed artifact; production runs replay that
+artifact with no model involved.**
 
 ```
 goal + typed params                    artifact + typed params
       │                                        │
       ▼                                        ▼
 ┌─ DiscoveryAgent ─┐   trace    ┌─ Compiler ─┐   ┌─ ReplayEngine ─┐
-│ LLM observe→     │──────────► │ parameterize│──►│ no LLM;        │──► result contract
-│ decide→act loop  │            │ + app profile│  │ detectors,     │    (success | business
-└────────┬─────────┘            └─────────────┘   │ recoveries,    │     outcome | failure)
-         │                                        │ checkpoint     │
-         ▼                                        └───────┬────────┘
+│ LLM: observe →   │──────────► │ fill in     │──►│ no LLM;        │──► result
+│ decide → act     │            │ {{params}}, │   │ detectors,     │    (success |
+└────────┬─────────┘            │ merge app   │   │ recoveries,    │     business outcome |
+         │                      │ profile     │   │ checkpoint     │     failure)
+         ▼                      └─────────────┘   └───────┬────────┘
    ┌──────────────────────── Surface ─────────────────────┘
-   │ perception: accessibility tree; action: ranked locator strategies
-   │ POLICY ENFORCED HERE (allowlist, risky controls) — below the model
-   └── Escalation: pause → operator console (TS) drives the SAME live session → resume
+   │ reads the page via the accessibility tree; acts via ranked locators
+   │ SAFETY POLICY ENFORCED HERE — below the model, so it can't be talked around
+   └── Escalation: pause → operator console drives the SAME live session → resume
 ```
 
-Key decisions:
+The decisions I'd defend first:
 
-- **Python, single process, synchronous.** The interesting problems here are data-model and
-  control-flow problems, not scale problems. Queues/services would be premature (per the brief).
-- **Perception = accessibility tree, action = semantic targeting** (role/name, label), not raw DOM
-  or pixel coordinates. It works on non-semantic legacy markup, it's the one representation that
-  also exists on desktops (UIA/AX APIs), and it's what a human operator effectively uses.
-- **The policy layer lives in the surface, below the model.** The model proposes; the surface
-  refuses anything outside the allowlist or matching risky-control patterns. A prompt-injected
-  model still cannot act outside policy, in discovery or replay alike.
-- **The LLM's output is a trace, not an artifact.** Deterministic compiler code — not the model —
-  produces the artifact: parameterization, fallback-strategy construction, profile merging. This
-  keeps the artifact trustworthy-by-construction rather than "the model said so."
-- **Real LLM loop** (`cua/agent.py`): Claude (`claude-opus-5`) with tool use; one action per turn;
-  fresh accessibility observation after every action; policy errors are surfaced back to the model
-  as tool errors so it can adapt (e.g. pick a non-risky path).
+- **Python, one process, synchronous.** The hard problems in this assignment are
+  about data models and control flow, not scale. Queues and services would have
+  been extra moving parts with nothing to justify them — the brief says as much.
+- **The agent reads pages through the accessibility tree and targets elements by
+  role and name** ("the textbox labeled Access Code"), not pixel coordinates or
+  raw CSS. Three reasons: it works on messy legacy HTML with no test ids; it's
+  basically how a human identifies controls, so it survives restyling; and the
+  same concept exists on desktop apps, which matters for question 4 below.
+- **Safety checks live below the model, in the Surface layer.** The model can
+  only *propose* actions; the surface refuses anything outside the allowlist or
+  matching a risky-button pattern. So even a prompt-injected model can't act
+  outside policy — the same check runs in discovery and replay.
+- **The model's output is just a trace of what it did — code builds the
+  artifact.** A deterministic compiler does the parameterization, builds the
+  fallback locators, and merges in the app profile. I didn't want the artifact's
+  correctness to rest on "the model wrote it."
+- **The discovery loop** (`cua/agent.py`) is Claude (`claude-opus-5`) with tool
+  use: one action per turn, and a fresh page snapshot after every action. When
+  the policy blocks something, the block is returned to the model as a tool
+  error so it can try a different route.
 
 ## 2. Artifact schema
 
-`cua/schema.py` (Pydantic, versioned, JSON-serialized; example in `artifacts/`). An artifact is a
-capability contract, not just a step list:
+Defined in `cua/schema.py` (Pydantic, versioned, saved as JSON — real example in
+`artifacts/`). I treated the artifact as a **contract for calling a capability**,
+not just a list of steps:
 
-- **Call signature**: typed `inputs` (with `sensitive` flags) and typed `outputs` with extraction
-  targets. A calling agent can read what to pass and what it gets back; `list` renders the catalog.
-- **Steps** with **ranked locator strategies** per target: the semantic strategy the model used
-  first (role+name / label), then structural fallbacks captured at action time (visible text,
-  `name=` attribute CSS, generated CSS path). Values are `{{param}}` templates.
-- **`row_cell` locator**: table cells addressed as (row text × column header) — built for
-  legacy table-soup where cells have no ids; survives row reordering and column insertion better
-  than any CSS path.
-- **Checkpoint**: explicit success conditions, verified before outputs are extracted — never
-  "the click didn't throw, so it worked."
-- **Error taxonomy as data** (see §3): `outcome_detectors`, `recovery_rules`,
-  `hard_error_detectors`, each tagged with `origin: app_profile | capability`.
-- **Governance**: `status: draft → approved` (replay refuses drafts by default — a human reviews
-  what the model built before agents may invoke it), `risk` (level + `stops_before`, the
-  irreversible control the flow must never touch), and `provenance` (model, run id, goal) — while
-  containing nothing of the raw transcript and no secrets.
+- **Call signature**: typed `inputs` (with a `sensitive` flag) and typed
+  `outputs` with instructions for where to read each value. A calling agent can
+  see what to pass and what it gets back; `list` prints this as a catalog.
+- **Steps with ranked locators**: for each target, the semantic locator the
+  model actually used (role+name or label) comes first, then fallbacks captured
+  at action time (visible text, `name=` attribute CSS, generated CSS path).
+  Values are `{{param}}` templates — the artifact never contains real data.
+- **A `row_cell` locator** for reading tables: "the cell in the row containing
+  *Savings*, under the column *Current Balance*." Old bank UIs are tables
+  without ids, and this survives rows moving around better than any CSS path.
+- **Checkpoint**: a condition that must be visible before outputs are extracted.
+  I never assume a click worked just because it didn't throw.
+- **The error handling is data, not code** (details in §3): `outcome_detectors`,
+  `recovery_rules`, and `hard_error_detectors` live in the artifact, each tagged
+  with where it came from (`app_profile` or this capability).
+- **Governance**: `status: draft → approved` — replay refuses drafts by default,
+  so a human reviews what the model built before agents can call it. Plus a
+  `risk` level (and `stops_before`: the irreversible button this flow must never
+  press) and `provenance` (which model, which run, what goal). No transcript,
+  no secrets.
 
 ## 3. Determinism & error handling
 
-Replay (`cua/replay.py`) executes steps with zero model involvement. Determinism comes from:
-ranked locator resolution with a bounded poll (first visible match wins), explicit post-action
-waits, template binding of params, and data-driven branching only.
+Replay (`cua/replay.py`) runs the steps with zero model involvement. What makes
+it deterministic: locators are tried in rank order with a bounded wait (first
+visible match wins), every action has an explicit wait after it, params are
+bound by template substitution, and the only branching is data-driven (the
+detectors below).
 
-Because the UI is stable, the interesting failures are runtime conditions. Triage order on any
-step failure — and the same scan runs after every successful action, since a page can answer the
-business question mid-flow:
+Since the UI itself is stable, the failures that matter are runtime conditions.
+When a step fails — and also after every *successful* action, because a page can
+answer the business question mid-flow — I check in this order:
 
-1. **Hard-error detectors** (e.g. "Application Error" page) → stop with a debuggable
-   `FailureDetail`: step, expected, observed, plus screenshot + accessibility snapshot evidence.
-2. **Outcome detectors** → return `business_outcome` (e.g. `member_not_found`,
-   `input_rejected`). "No such member" is an answer for the caller, not a crash — the result
-   contract separates these statuses explicitly.
-3. **Recovery rules** → bounded, mechanical fixes (dismiss a known interstitial, click "Restore
-   Session", reload), with `max_attempts`; the step is retried and marked `recovered`.
-4. Otherwise → **escalate** (if enabled) or fail hard with evidence.
+1. **Hard-error detectors** (e.g. an "Application Error" page) → stop and return
+   a debuggable failure: which step, what I expected, what I saw, plus a
+   screenshot and an accessibility snapshot.
+2. **Outcome detectors** → return a `business_outcome`. "No member found" is an
+   answer the caller needs, not a crash — the result contract keeps these
+   statuses separate, because mixing them up is the classic mistake here.
+3. **Recovery rules** → small mechanical fixes with a `max_attempts` cap:
+   dismiss a known popup, click "Restore Session", reload. The step retries and
+   the result records that a recovery was applied.
+4. Nothing matched → **escalate to a human** (if enabled) or fail hard with
+   evidence.
 
-A checkpoint miss re-scans outcomes first: a validation-error page after the final click is a
-business outcome, not a failure. Transient slowness is absorbed by waits (the evidence includes a
-run where the injected 6s delay simply shows up as an 8.5s step). **Drift, secondarily**: replay
-records which strategy resolved each step; resolving via a fallback instead of the primary
-emits a `drift_signal` event — the trigger for flagging a capability for re-discovery.
+If the final checkpoint doesn't appear, I re-scan the outcome detectors first —
+a validation-error page after the last click is a business outcome, not a bug.
+Slowness is absorbed by the waits (the evidence includes a run where an injected
+6-second delay just shows up as a slower step). For UI drift, which the brief
+calls secondary: replay records which locator strategy resolved each step, and
+resolving via a fallback instead of the primary emits a `drift_signal` event —
+that's the trigger to flag a capability for re-discovery.
 
 ## 4. Heterogeneity & multi-tenant
 
-**Surface seam.** Artifacts and the replay engine never touch Playwright types; they speak
-`ElementTarget`/`Observation` to a `Surface` interface (perceive, resolve, act). A desktop
-implementation (Windows UIA / macOS AX) drops in behind the same interface — role/name targeting
-and accessibility-tree perception are natively meaningful there, which is exactly why pixel
-coordinates and CSS-first targeting were rejected as the primary strategies. A screenshot+
-coordinates surface would be the fallback of last resort for apps with no accessibility layer,
-implemented as one more strategy kind, not a new engine.
+**Other kinds of surfaces.** The artifact and replay engine never mention
+Playwright — they talk to a small `Surface` interface (observe the page, resolve
+a target, act) using generic types. To support a desktop app, I'd write a new
+implementation of that interface on Windows UIA or macOS Accessibility — and
+role/name targeting already means something there, which is exactly why I made
+it the primary strategy instead of CSS or pixels. For an app with no
+accessibility layer at all, a screenshot+coordinates strategy would slot in as
+one more locator kind, not a new engine.
 
-**Multi-tenant reuse.** The schema already splits knowledge into layers:
-capability-specific data vs. the **app profile** (`profiles/legacy-teller.json`) — outcome
-detectors, recoveries, and error signatures shared by *every* capability on the same vendor
-product, merged at compile time and tagged with `origin`. The production shape is a three-layer
-resolution — vendor product profile → tenant overlay (base_url, branding-affected names, version
-pins) → capability — so hundreds of tenants on the same core banking product share one recorded
-flow, and a tenant with a customized screen overrides only the affected targets. Two mechanisms
-exist today as the seam: `--base-url` per invocation (tenant instance), and semantic-first
-locators, which are exactly the strategies most stable across branding/config differences.
-Per-tenant drift management: the `drift_signal` telemetry above, aggregated per tenant+version,
-tells you which tenants have diverged and need an overlay or a re-discovery.
+**Reusing artifacts across tenants.** The schema already splits knowledge into
+layers: what's specific to this capability vs. the **app profile**
+(`profiles/legacy-teller.json`) — the error pages, recoveries, and outcome
+signatures shared by *every* capability on the same vendor product, merged in at
+compile time. The production version of this is a three-layer stack: vendor
+product profile → tenant overlay (their URL, their renamed labels, their
+version) → capability. That way hundreds of credit unions on the same core
+banking product share one recorded flow, and a tenant who customized a screen
+overrides only the affected targets. What exists today is the base of that:
+`--base-url` per invocation, and semantic-first locators — which are the
+locators most likely to survive per-tenant branding differences in the first
+place. For detecting drift per tenant: aggregate the `drift_signal` events by
+tenant and version, and you can see which tenants have diverged and need an
+overlay or a re-record.
 
 ## 5. Escalation & handoff
 
-**Detecting stuck**: discovery — the model calls `give_up`, or the step budget runs out; replay —
-a step fails and no detector/recovery matches, or the restart budget is exhausted.
+**How "stuck" is detected.** In discovery: the model calls its `give_up` tool,
+or runs out of steps. In replay: a step fails and no detector or recovery
+matches, or the restart budget is used up.
 
-**Control transfer** is an explicit state machine (`cua/escalation.py`):
-`AGENT_CONTROL → PAUSED → HUMAN_CONTROL → (resume | abort)`. On escalation the run pauses and an
-intervention is raised carrying full context: capability, step, expected-vs-observed, URL, live
-screenshot. The operator console (TypeScript, served at `:7100`) shows that context and drives
-**the same live browser session** the automation was using — structured click/type commands
-executed against the live Playwright page — then hands control back with Resume, or Aborts.
-Every operator action is recorded, from both channels: console commands *and* direct browser
-interaction (an injected DOM listener reports clicks/changes while a human has control), so the
-evidence log shows exactly what the human did.
+**How control moves.** It's an explicit state machine (`cua/escalation.py`):
+`AGENT_CONTROL → PAUSED → HUMAN_CONTROL → resume or abort`. On escalation the
+run pauses and raises an intervention with real context: which capability, which
+step, expected vs. observed, the URL, and a live screenshot. The operator
+console (TypeScript, on `:7100`) shows that and lets the human drive **the same
+live browser session** the automation was using — click and type commands are
+executed against the live Playwright page. When they're done they hit Resume (or
+Abort). Every human action is recorded from both channels: console commands, and
+direct clicks in the browser window (an injected DOM listener reports those
+while the human has control). The evidence log shows exactly what the human did.
 
-**Resume semantics**: resume restarts the capability from step 1 (one restart by default).
-Rationale: capabilities are non-mutating up to their recorded boundary (`risk.stops_before`), so
-restart is always safe and avoids the hairy "which half-finished step state am I in?" problem.
-For genuinely mutating capabilities, resume would need idempotency keys/checkpointed step state —
-designed but deliberately not built (§7). The console UI is minimal by intent; the *mechanism*
-(pause, expose live session, record human actions, signal resume, restart) is real and is the
-production seam — a real deployment swaps the localhost console for an authenticated operator
-workspace and a remote browser pool (CDP/VNC) behind the same API.
+**What resume means.** Resume restarts the capability from step 1 (one restart
+by default). I chose restart-from-the-top because these capabilities don't
+change anything up to their recorded boundary (`risk.stops_before`), so a
+restart is always safe — and it avoids the genuinely hard problem of "which
+half-finished step was I in?". For flows that *do* change things, resume would
+need idempotency keys and per-step checkpoints; I designed for it but didn't
+build it (§7). The console UI is deliberately minimal. The part I'd call real is
+the mechanism — pause, expose the live session, record the human, resume,
+restart — and in production you'd swap the localhost console for an
+authenticated operator workspace and a remote browser pool behind the same API.
 
 ## 6. Safety
 
-- **Allowlists enforced below the model** (`policy/policy.json` → `cua/policy.py`, enforced in the
-  surface): origins and action types. Every navigation and every action is checked, in discovery
-  and replay identically.
-- **Risky/irreversible actions**: controls matching configured patterns ("Confirm & Open",
-  wire/transfer/delete/close-account…) are refused at click time. The demo flow stops at the
-  review screen; the artifact records `stops_before` as an explicit, reviewable boundary.
-  Conservative default (`block`); `escalate` mode routes the decision to a human instead.
-- **Secrets & PII**: sensitive parameter values are **never sent to the model** — the model types
-  `{{param}}` placeholders and the surface substitutes values locally at fill time. Artifacts
-  store placeholders only. All persisted text (logs, results, snapshots) passes through a
-  redactor seeded with sensitive values plus configured patterns (PIN/SSN-like). Screenshots stay
-  in local evidence directories and are the operator's window during handoff.
-- **Limits, honestly**: screenshots and accessibility snapshots can still contain on-screen PII
-  (balances, names) — production would need field-level masking policies per app profile and an
-  evidence retention policy; the redactor handles values it knows, not arbitrary visual data.
-  The allowlist is origin-granular, not route-granular. Draft→approved is one gate, not a full
-  review workflow.
+- **Allowlists are enforced below the model** (`policy/policy.json` →
+  `cua/policy.py`, checked in the surface): allowed origins and allowed action
+  types. Every navigation and every action is checked, identically in discovery
+  and replay.
+- **Risky / irreversible actions**: buttons matching configured patterns
+  ("Confirm & Open", wire/transfer/delete/close-account…) are refused at click
+  time. The demo flow stops at the review screen, and the artifact records
+  `stops_before` so the boundary is explicit and reviewable. Default is block;
+  there's an escalate mode that asks a human instead.
+- **Secrets and PII**: sensitive values are **never sent to the model**. The
+  model types `{{param}}` placeholders and the surface fills in the real value
+  locally. Artifacts store placeholders only. Everything persisted (logs,
+  results, snapshots) goes through a redactor seeded with the sensitive values
+  plus configured patterns (PIN/SSN-like). Screenshots stay in local evidence
+  folders and are what the operator sees during a handoff.
+- **Honest limits**: screenshots and page snapshots can still contain on-screen
+  PII (names, balances) — the redactor scrubs values it knows about, not
+  arbitrary visual data. Production would need per-app field masking and an
+  evidence retention policy. The allowlist is per-origin, not per-route. And
+  draft→approved is one gate, not a full review workflow.
 
 ## 7. Cuts
 
-Deliberately cut, with the seam left clean:
+Things I deliberately didn't build, with the boundary left clean so they slot in
+later:
 
-- **Non-Anthropic LLM** — provider-agnostic LLMProvider interface out of scope. Could
-  be added with a ~100-line adapter.
-- **Desktop/legacy-frameset surface implementations** — the `Surface` interface and
-  accessibility-first targeting are the seam (§4); only one browser implementation is built.
-- **Tenant overlay resolution** — designed (§4); today one profile layer + `--base-url` exists.
-- **Operator console hardening** — no auth, localhost only, minimal UI; the handoff mechanism and
-  recording are real.
-- **Resume-in-place for mutating flows** — restart semantics only (§5); idempotency-keyed step
-  checkpointing is the next step for `makes_change` capabilities.
-- **Assisted fallback** (bounded single-step LLM recovery on replay failure) — the escalation hook
-  is exactly where it would plug in; cut to keep the "no model in production replay" story crisp.
-- **Multi-run stability scoring** — the per-step `strategy_used`/`drift_signal` telemetry is
-  recorded; the aggregation job isn't built.
-- **Frames/iframe traversal** in locator resolution; would add a `frame_path` to `ElementTarget`.
+- **Non-Anthropic LLM support** — the model calls are isolated in `cua/agent.py`;
+  a provider interface plus an OpenAI adapter is roughly a 100-line change.
+- **Desktop / frameset surface implementations** — the `Surface` interface is
+  the boundary (§4); I built one browser implementation.
+- **Tenant overlay resolution** — designed in §4; today there's one profile
+  layer plus `--base-url`.
+- **Operator console hardening** — no auth, localhost only, minimal UI. The
+  handoff mechanism and the action recording are real.
+- **Resume-in-place for state-changing flows** — restart-only semantics today
+  (§5); idempotency-keyed step checkpoints are the next step.
+- **Assisted fallback** (letting the LLM fix a single failed step during replay,
+  within policy) — the escalation hook is exactly where it would plug in. I cut
+  it to keep "no model in production replay" a clean, true statement.
+- **Multi-run stability scoring** — the per-step `strategy_used` and
+  `drift_signal` data is already recorded; the job that aggregates it isn't
+  built.
+- **Iframe/frameset traversal** in locator resolution — would add a `frame_path`
+  field to `ElementTarget`.
 
-Next with more time: tenant overlays + drift dashboards, the assisted-fallback experiment behind
-an approval flag, desktop surface via UIA, and eval harnesses that replay every artifact N times
-nightly and score stability before agents are allowed to call it.
+With more time, in order: tenant overlays with a drift dashboard, the
+assisted-fallback experiment behind an approval flag, a desktop surface on UIA,
+and a nightly harness that replays every artifact N times and scores stability
+before agents are allowed to call it.

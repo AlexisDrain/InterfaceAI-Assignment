@@ -1,0 +1,15 @@
+{"ts": "2026-08-13T20:29:04+00:00", "type": "step_start", "step": "s1", "action": "navigate", "note": "open the application entry point", "attempt": 1}
+{"ts": "2026-08-13T20:29:07+00:00", "type": "step_ok", "step": "s1", "strategy": "url", "attempts": 1, "duration_ms": 2467}
+{"ts": "2026-08-13T20:29:07+00:00", "type": "step_start", "step": "s2", "action": "type", "note": "Enter teller ID", "attempt": 1}
+{"ts": "2026-08-13T20:29:09+00:00", "type": "step_ok", "step": "s2", "strategy": "role=textbox name=\"Teller ID\"", "attempts": 1, "duration_ms": 2453}
+{"ts": "2026-08-13T20:29:09+00:00", "type": "step_start", "step": "s3", "action": "type", "note": "Enter ***REDACTED***", "attempt": 1}
+{"ts": "2026-08-13T20:29:12+00:00", "type": "step_ok", "step": "s3", "strategy": "role=textbox name=\"***REDACTED***\"", "attempts": 1, "duration_ms": 2453}
+{"ts": "2026-08-13T20:29:12+00:00", "type": "step_start", "step": "s4", "action": "click", "note": "Sign in to teller portal", "attempt": 1}
+{"ts": "2026-08-13T20:29:14+00:00", "type": "step_ok", "step": "s4", "strategy": "role=button name=\"Sign In\"", "attempts": 1, "duration_ms": 2483}
+{"ts": "2026-08-13T20:29:14+00:00", "type": "step_start", "step": "s5", "action": "type", "note": "Enter member number", "attempt": 1}
+{"ts": "2026-08-13T20:29:17+00:00", "type": "step_ok", "step": "s5", "strategy": "role=textbox name=\"Member Number\"", "attempts": 1, "duration_ms": 2437}
+{"ts": "2026-08-13T20:29:17+00:00", "type": "step_start", "step": "s6", "action": "click", "note": "Search for member", "attempt": 1}
+{"ts": "2026-08-13T20:29:19+00:00", "type": "step_ok", "step": "s6", "strategy": "role=button name=\"Search\"", "attempts": 1, "duration_ms": 2468}
+{"ts": "2026-08-13T20:29:19+00:00", "type": "checkpoint_verified", "conditions": ["text visible: \"Member Profile\""]}
+{"ts": "2026-08-13T20:29:19+00:00", "type": "outputs_extracted", "outputs": {"savings_balance": "$4,825.50"}}
+{"ts": "2026-08-13T20:29:19+00:00", "type": "replay_finished", "status": "success"}

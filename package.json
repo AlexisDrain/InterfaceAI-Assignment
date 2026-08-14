@@ -1,0 +1,23 @@
+{
+  "name": "interfaceai-assignment",
+  "version": "1.0.0",
+  "description": "**Discover with an LLM once. Replay deterministically forever. Escalate to a human when stuck.**",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexisDrain/InterfaceAI-Assignment.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AlexisDrain/InterfaceAI-Assignment/issues"
+  },
+  "homepage": "https://github.com/AlexisDrain/InterfaceAI-Assignment#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0"
+  }
+}

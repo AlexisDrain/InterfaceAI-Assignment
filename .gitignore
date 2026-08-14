@@ -7,3 +7,11 @@ node_modules/
 # built operator console bundle is committed on purpose (no node needed to run)
 
 .claude/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+backups/
