@@ -6,9 +6,9 @@ The through-line: **the model discovers; the compiler produces a typed artifact;
 replay is how agents invoke it in production.**
 
 ```
-goal + typed params                    artifact + typed params
-      │                                        │
-      ▼                                        ▼
+goal + typed params                         artifact + typed params
+      │                                             │
+      ▼                                             ▼
 ┌─ DiscoveryAgent ─┐   trace    ┌─ Compiler ─┐   ┌─ ReplayEngine ─┐
 │ LLM observe→     │──────────► │ parameterize│──►│ no LLM;        │──► result contract
 │ decide→act loop  │            │ + app profile│  │ detectors,     │    (success | business
@@ -136,14 +136,20 @@ deployment swaps in an authenticated workspace and a remote browser pool behind 
 
 ## 7. Cuts
 
-Deliberately cut, seam left clean: **non-Anthropic LLM support** (isolated in `cua/agent.py`;
-~100-line adapter); **desktop/frameset surface implementations** (the `Surface` interface is
-the seam); **tenant overlay resolution** (designed in §4; one profile layer + `--base-url`
-exists); **operator console hardening** (no auth, localhost, minimal UI — the handoff and
-recording are real); **resume-in-place for mutating flows** (restart-only today);
-**assisted fallback** (bounded single-step LLM recovery — the escalation hook is where it
-plugs in; cut to keep "no model in production replay" crisp); **multi-run stability scoring**
-(telemetry recorded, aggregation not built); **iframe traversal** (would add `frame_path`).
+Deliberately cut, seam left clean:
+- **non-Anthropic LLM support** (isolated in `cua/agent.py`;
+~100-line adapter);
+- **desktop/frameset surface implementations** (the `Surface` interface is
+the seam);
+- **tenant overlay resolution** (designed in section 4; one profile layer + `--base-url`
+exists);
+- **operator console hardening** (no auth, localhost, minimal UI — the handoff and
+recording are real);
+- **resume-in-place for mutating flows** (restart-only right now);
+- **assisted fallback** (bounded single-step LLM recovery — the escalation hook is where it
+plugs in; cut to keep "no model in production replay" crisp);
+- **multi-run stability scoring** (telemetry recorded, aggregation not built);
+- **iframe traversal** (would add `frame_path`).
 
 Next with more time: tenant overlays + drift dashboards, assisted fallback behind an approval
 flag, a UIA desktop surface, and nightly harnesses that replay every artifact N times and
