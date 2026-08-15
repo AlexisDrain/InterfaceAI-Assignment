@@ -1,0 +1,39 @@
+- table:
+  - rowgroup:
+    - row "TellerCore 2000™ — First Example Credit Union":
+      - cell "TellerCore 2000™ — First Example Credit Union"
+    - 'row "Navigation Member Search Sign Out Member Profile — Alexis Rivera Member 12345 · Since 2011-04-18 · Standing: Good Acct # Type Current Balance S-0001 Savings $4,825.50 C-0002 Checking $1,208.13 L-0003 Auto Loan -$9,540.00 Open Sub-Account"':
+      - 'cell "Navigation Member Search Sign Out Member Profile — Alexis Rivera Member 12345 · Since 2011-04-18 · Standing: Good Acct # Type Current Balance S-0001 Savings $4,825.50 C-0002 Checking $1,208.13 L-0003 Auto Loan -$9,540.00 Open Sub-Account"':
+        - table:
+          - rowgroup:
+            - 'row "Navigation Member Search Sign Out Member Profile — Alexis Rivera Member 12345 · Since 2011-04-18 · Standing: Good Acct # Type Current Balance S-0001 Savings $4,825.50 C-0002 Checking $1,208.13 L-0003 Auto Loan -$9,540.00 Open Sub-Account"':
+              - cell "Navigation Member Search Sign Out":
+                - text: Navigation
+                - link "Member Search":
+                  - /url: /search
+                - link "Sign Out":
+                  - /url: /logout
+              - 'cell "Member Profile — Alexis Rivera Member 12345 · Since 2011-04-18 · Standing: Good Acct # Type Current Balance S-0001 Savings $4,825.50 C-0002 Checking $1,208.13 L-0003 Auto Loan -$9,540.00 Open Sub-Account"':
+                - text: "Member Profile — Alexis Rivera Member 12345 · Since 2011-04-18 · Standing: Good"
+                - table:
+                  - rowgroup:
+                    - 'row "Acct # Type Current Balance"':
+                      - 'columnheader "Acct #"'
+                      - columnheader "Type"
+                      - columnheader "Current Balance"
+                    - row "S-0001 Savings $4,825.50":
+                      - cell "S-0001"
+                      - cell "Savings"
+                      - cell "$4,825.50"
+                    - row "C-0002 Checking $1,208.13":
+                      - cell "C-0002"
+                      - cell "Checking"
+                      - cell "$1,208.13"
+                    - row "L-0003 Auto Loan -$9,540.00":
+                      - cell "L-0003"
+                      - cell "Auto Loan"
+                      - cell "-$9,540.00"
+                - link "Open Sub-Account":
+                  - /url: /member/12345/subaccount
+    - row "TellerCore 2000 build 4.7.112 · For internal use only · Unauthorized access prohibited":
+      - cell "TellerCore 2000 build 4.7.112 · For internal use only · Unauthorized access prohibited"

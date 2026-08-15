@@ -1,0 +1,6 @@
+{"ts": "2026-08-15T02:27:28+00:00", "type": "step_start", "step": "s1", "action": "navigate", "note": "open the application entry point", "attempt": 1}
+{"ts": "2026-08-15T02:27:31+00:00", "type": "step_ok", "step": "s1", "strategy": "url", "attempts": 1, "duration_ms": 2484}
+{"ts": "2026-08-15T02:27:31+00:00", "type": "step_start", "step": "s2", "action": "type", "note": "Enter teller ID", "attempt": 1}
+{"ts": "2026-08-15T02:27:33+00:00", "type": "step_ok", "step": "s2", "strategy": "role=textbox name=\"Teller ID\"", "attempts": 1, "duration_ms": 2437}
+{"ts": "2026-08-15T02:27:33+00:00", "type": "step_start", "step": "s3", "action": "type", "note": "Enter ***REDACTED***", "attempt": 1}
+{"ts": "2026-08-15T02:27:43+00:00", "type": "step_error", "step": "s3", "attempt": 1, "error": "could not resolve element (Enter ***REDACTED***) within 10000 ms; tried: role=textbox name=\"***REDACTED***\"; css=input[name=\"code\"]; css=form > table > tbody > tr:nth-of-type(2) > td:nth-of-type(2) > input"}

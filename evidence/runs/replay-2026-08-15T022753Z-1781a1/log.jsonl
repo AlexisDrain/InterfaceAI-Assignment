@@ -1,0 +1,28 @@
+{"ts": "2026-08-15T02:27:53+00:00", "type": "step_start", "step": "s1", "action": "navigate", "note": "open the application entry point", "attempt": 1}
+{"ts": "2026-08-15T02:27:56+00:00", "type": "step_ok", "step": "s1", "strategy": "url", "attempts": 1, "duration_ms": 2469}
+{"ts": "2026-08-15T02:27:56+00:00", "type": "step_start", "step": "s2", "action": "type", "note": "Enter teller ID", "attempt": 1}
+{"ts": "2026-08-15T02:27:58+00:00", "type": "step_ok", "step": "s2", "strategy": "role=textbox name=\"Teller ID\"", "attempts": 1, "duration_ms": 2484}
+{"ts": "2026-08-15T02:27:58+00:00", "type": "step_start", "step": "s3", "action": "type", "note": "Enter ***REDACTED***", "attempt": 1}
+{"ts": "2026-08-15T02:28:01+00:00", "type": "step_ok", "step": "s3", "strategy": "role=textbox name=\"***REDACTED***\"", "attempts": 1, "duration_ms": 2437}
+{"ts": "2026-08-15T02:28:01+00:00", "type": "step_start", "step": "s4", "action": "click", "note": "Sign in to teller portal", "attempt": 1}
+{"ts": "2026-08-15T02:28:11+00:00", "type": "step_error", "step": "s4", "attempt": 1, "error": "Locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Sign In\").first\n    - locator resolved to <input type=\"submit\" value=\"Sign In\"/>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enable"}
+{"ts": "2026-08-15T02:28:14+00:00", "type": "intervention_raised", "id": "iv-3cede463", "reason": "Replay blocked at step s4 (click): Locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Sign In\").first\n    - locator resolved to <input type=\"submit\" value=\"Sign In\"/>\n  - attempting click act", "context": {"capability": "lookup_member_savings", "step": "s4", "step_note": "Sign in to teller portal", "expected": "click on role=button name=\"Sign In\" (Sign in to teller portal)", "url": "http://127.0.0.1:8300/login"}, "console": "http://127.0.0.1:7100/"}
+{"ts": "2026-08-15T02:29:04+00:00", "type": "operator_command", "op": "resume"}
+{"ts": "2026-08-15T02:29:04+00:00", "type": "human_action", "channel": "browser", "at": "2026-08-15T02:29:04+00:00", "kind": "click", "tag": "INPUT", "text": "Supervisor Override"}
+{"ts": "2026-08-15T02:29:04+00:00", "type": "intervention_resolved", "id": "iv-3cede463", "resolution": "resumed", "human_actions": 1}
+{"ts": "2026-08-15T02:29:04+00:00", "type": "restart_after_handoff", "attempt": 1}
+{"ts": "2026-08-15T02:29:04+00:00", "type": "step_start", "step": "s1", "action": "navigate", "note": "open the application entry point", "attempt": 1}
+{"ts": "2026-08-15T02:29:06+00:00", "type": "step_ok", "step": "s1", "strategy": "url", "attempts": 1, "duration_ms": 2437}
+{"ts": "2026-08-15T02:29:06+00:00", "type": "step_start", "step": "s2", "action": "type", "note": "Enter teller ID", "attempt": 1}
+{"ts": "2026-08-15T02:29:08+00:00", "type": "step_ok", "step": "s2", "strategy": "role=textbox name=\"Teller ID\"", "attempts": 1, "duration_ms": 2437}
+{"ts": "2026-08-15T02:29:08+00:00", "type": "step_start", "step": "s3", "action": "type", "note": "Enter ***REDACTED***", "attempt": 1}
+{"ts": "2026-08-15T02:29:11+00:00", "type": "step_ok", "step": "s3", "strategy": "role=textbox name=\"***REDACTED***\"", "attempts": 1, "duration_ms": 2437}
+{"ts": "2026-08-15T02:29:11+00:00", "type": "step_start", "step": "s4", "action": "click", "note": "Sign in to teller portal", "attempt": 1}
+{"ts": "2026-08-15T02:29:13+00:00", "type": "step_ok", "step": "s4", "strategy": "role=button name=\"Sign In\"", "attempts": 1, "duration_ms": 2468}
+{"ts": "2026-08-15T02:29:13+00:00", "type": "step_start", "step": "s5", "action": "type", "note": "Enter member number", "attempt": 1}
+{"ts": "2026-08-15T02:29:16+00:00", "type": "step_ok", "step": "s5", "strategy": "role=textbox name=\"Member Number\"", "attempts": 1, "duration_ms": 2437}
+{"ts": "2026-08-15T02:29:16+00:00", "type": "step_start", "step": "s6", "action": "click", "note": "Search for member", "attempt": 1}
+{"ts": "2026-08-15T02:29:18+00:00", "type": "step_ok", "step": "s6", "strategy": "role=button name=\"Search\"", "attempts": 1, "duration_ms": 2469}
+{"ts": "2026-08-15T02:29:18+00:00", "type": "checkpoint_verified", "conditions": ["text visible: \"Member Profile\""]}
+{"ts": "2026-08-15T02:29:18+00:00", "type": "outputs_extracted", "outputs": {"savings_balance": "$4,825.50"}}
+{"ts": "2026-08-15T02:29:18+00:00", "type": "replay_finished", "status": "success"}

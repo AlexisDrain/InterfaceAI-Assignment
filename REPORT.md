@@ -6,16 +6,16 @@ The through-line: **the model discovers; the compiler produces a typed artifact;
 replay is how agents invoke it in production.**
 
 ```
-goal + typed params                         artifact + typed params
-      │                                             │
-      ▼                                             ▼
-┌─ DiscoveryAgent ─┐   trace    ┌─ Compiler ─┐   ┌─ ReplayEngine ─┐
-│ LLM observe→     │──────────► │ parameterize│──►│ no LLM;        │──► result contract
-│ decide→act loop  │            │ + app profile│  │ detectors,     │    (success | business
-└────────┬─────────┘            └─────────────┘   │ recoveries,    │     outcome | failure)
-         │                                        │ checkpoint     │
-         ▼                                        └───────┬────────┘
-   ┌──────────────────────── Surface ─────────────────────┘
+goal + typed params                            artifact + typed params
+      │                                                 │
+      ▼                                                 ▼
+┌─ DiscoveryAgent ─┐   trace    ┌── Compiler ──┐   ┌─ ReplayEngine ─┐
+│ LLM observe→     │──────────► │ parameterize │──►│ no LLM;        │──► result contract
+│ decide→act loop  │            │ + app profile│   │ detectors,     │    (success | business
+└────────┬─────────┘            └──────────────┘   │ recoveries,    │     outcome | failure)
+         │                                         │ checkpoint     │
+         ▼                                         └───────┬────────┘
+   ┌──────────────────────── Surface ──────────────────────┘
    │ perception: accessibility tree; action: ranked locator strategies
    │ POLICY ENFORCED HERE (allowlist, risky controls) — below the model
    └── Escalation: pause → operator console drives the SAME live session → resume

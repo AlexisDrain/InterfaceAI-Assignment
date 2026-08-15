@@ -1,0 +1,85 @@
+{
+  "run_id": "replay-2026-08-15T011935Z-0673b4",
+  "capability_id": "lookup_member_savings",
+  "artifact_version": 1,
+  "status": "success",
+  "outputs": {
+    "savings_balance": "$4,825.50"
+  },
+  "steps": [
+    {
+      "step_id": "s1",
+      "action": "navigate",
+      "status": "ok",
+      "strategy_used": "url",
+      "attempts": 1,
+      "duration_ms": 2437,
+      "recoveries_applied": []
+    },
+    {
+      "step_id": "s2",
+      "action": "type",
+      "status": "ok",
+      "strategy_used": "role=textbox name=\"Teller ID\"",
+      "attempts": 1,
+      "duration_ms": 2437,
+      "recoveries_applied": []
+    },
+    {
+      "step_id": "s3",
+      "action": "type",
+      "status": "ok",
+      "strategy_used": "role=textbox name=\"***REDACTED***\"",
+      "attempts": 1,
+      "duration_ms": 2437,
+      "recoveries_applied": []
+    },
+    {
+      "step_id": "s4",
+      "action": "click",
+      "status": "ok",
+      "strategy_used": "role=button name=\"Sign In\"",
+      "attempts": 1,
+      "duration_ms": 2468,
+      "recoveries_applied": []
+    },
+    {
+      "step_id": "s5",
+      "action": "type",
+      "status": "ok",
+      "strategy_used": "role=textbox name=\"Member Number\"",
+      "attempts": 1,
+      "duration_ms": 2437,
+      "recoveries_applied": []
+    },
+    {
+      "step_id": "s6",
+      "action": "click",
+      "status": "ok",
+      "strategy_used": "role=button name=\"Search\"",
+      "attempts": 1,
+      "duration_ms": 2485,
+      "recoveries_applied": []
+    }
+  ],
+  "escalations": [
+    {
+      "intervention_id": "iv-12246834",
+      "reason": "Replay blocked at step s4 (click): Locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Sign In\").first\n    - locator resolved to <input type=\"submit\" value=\"Sign In\"/>\n  - attempting click act",
+      "at_step": "s4",
+      "resolution": "resumed",
+      "human_actions": [
+        {
+          "channel": "browser",
+          "at": "2026-08-15T01:20:49+00:00",
+          "kind": "click",
+          "tag": "INPUT",
+          "text": "Supervisor Override"
+        }
+      ]
+    }
+  ],
+  "started_at": "2026-08-15T01:19:36+00:00",
+  "finished_at": "2026-08-15T01:21:04+00:00",
+  "evidence_dir": "evidence\\runs\\replay-2026-08-15T011935Z-0673b4"
+}

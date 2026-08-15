@@ -1,0 +1,15 @@
+{
+  "intervention_id": "iv-3cede463",
+  "reason": "Replay blocked at step s4 (click): Locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Sign In\").first\n    - locator resolved to <input type=\"submit\" value=\"Sign In\"/>\n  - attempting click act",
+  "at_step": null,
+  "resolution": "resumed",
+  "human_actions": [
+    {
+      "channel": "browser",
+      "at": "2026-08-15T02:29:04+00:00",
+      "kind": "click",
+      "tag": "INPUT",
+      "text": "Supervisor Override"
+    }
+  ]
+}
