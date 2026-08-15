@@ -31,6 +31,7 @@ import time
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from typing import Literal, Optional
 
 from .policy import Policy
 from .schema import ElementTarget, EscalationReport, LocatorStrategy, utc_now
@@ -121,7 +122,7 @@ class InterventionManager:
         return report
 
     def _handle_command(self, cmd: dict, surface: BrowserSurface,
-                        report: EscalationReport) -> str | None:
+                        report: EscalationReport) -> Optional[Literal["resumed", "aborted"]]:
         op = cmd.get("op")
         action = {"channel": "console", "at": utc_now(), **cmd}
         if op not in ("resume", "abort"):
@@ -204,7 +205,7 @@ class InterventionManager:
                 else:
                     self._send(404, b"not found", "text/plain")
 
-            def log_message(self, fmt, *args):
+            def log_message(self, format: str, *args) -> None:  # noqa: A002 - matches stdlib signature
                 pass
 
         server = ThreadingHTTPServer(("127.0.0.1", self.port), Handler)
