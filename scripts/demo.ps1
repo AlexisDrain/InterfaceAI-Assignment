@@ -6,8 +6,8 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 $py = ".\.venv\Scripts\python.exe"
 if (-not (Test-Path $py)) { $py = "python" }
 
-if (-not $env:ANTHROPIC_API_KEY) {
-  Write-Host "ANTHROPIC_API_KEY is not set -- discovery (the LLM path) requires it." -ForegroundColor Yellow
+if (-not $env:ANTHROPIC_API_KEY -and -not (Test-Path ".env")) {
+  Write-Host "ANTHROPIC_API_KEY is required for discovery (set the env var, or put it in .env)." -ForegroundColor Yellow
   exit 1
 }
 

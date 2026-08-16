@@ -7,7 +7,10 @@ cd "$(dirname "$0")/.."
 PY="${PY:-python}"
 [ -x .venv/bin/python ] && PY=.venv/bin/python
 
-: "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for the discovery step}"
+if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ ! -f .env ]; then
+  echo "ANTHROPIC_API_KEY is required for the discovery step (env var, or a .env file)" >&2
+  exit 1
+fi
 
 echo "=== 1. DISCOVERY (real LLM run): lookup member savings ==="
 $PY -m cua.cli inject none
