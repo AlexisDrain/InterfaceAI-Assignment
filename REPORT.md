@@ -14,11 +14,12 @@ goal + typed params                            artifact + typed params
 │ decide→act loop  │            │ + app profile│   │ detectors,     │    (success | business
 └────────┬─────────┘            └──────────────┘   │ recoveries,    │     outcome | failure)
          │                                         │ checkpoint     │
-         ▼                                         └───────┬────────┘
-   ┌──────────────────────── Surface ──────────────────────┘
-   │ perception: accessibility tree; action: ranked locator strategies
-   │ POLICY ENFORCED HERE (allowlist, risky controls) — below the model
-   └───────────────────────────┬───────────────────────────
+         │                                         └───────┬────────┘
+         ▼                                                 ▼
+   ┌──────────────────────── Surface ───────────────────────────────────┐
+   │ perception: accessibility tree; action: ranked locator strategies  │
+   │ POLICY ENFORCED HERE (allowlist, risky controls) — below the model │
+   └───────────────────────────┬────────────────────────────────────────┘
                   stuck: pause ▼▲ resume / abort
    ┌─ Escalation (InterventionManager) ────────────────────┐
    │ a human drives the SAME live session — console        │
