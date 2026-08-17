@@ -18,7 +18,12 @@ goal + typed params                            artifact + typed params
    ┌──────────────────────── Surface ──────────────────────┘
    │ perception: accessibility tree; action: ranked locator strategies
    │ POLICY ENFORCED HERE (allowlist, risky controls) — below the model
-   └── Escalation: pause → operator console drives the SAME live session → resume
+   └───────────────────────────┬───────────────────────────
+                  stuck: pause ▼▲ resume / abort
+   ┌─ Escalation (InterventionManager) ────────────────────┐
+   │ a human drives the SAME live session — console        │
+   │ commands or direct browser clicks, all recorded       │
+   └───────────────────────────────────────────────────────┘
 ```
 
 Key decisions:
